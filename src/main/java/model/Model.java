@@ -6,12 +6,14 @@ import java.util.Date;
 
 @Data
 public class Model {
-    private String document;
+    //private String document;
+    private String code;
+    private String nomenclature;
     private String desiredDate;
-    private String planningDate;
+    private String supplierDate;
+    private String flowDate;
     private String salaryDate;
     private String currentDate;
-    private Integer factSalaryDate;
-    private String deliveryDate;
+    private String factSalaryDate;
 
 }

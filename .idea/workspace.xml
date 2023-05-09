@@ -4,17 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7dbea541-9c09-47b1-9dc6-52fcbc0e0e6a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/14_04_2023_VIKS_009-013_Svodnaya_s_kodami_ERP_dlya_zalivki_tsen.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/model/Nomenclature.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="7dbea541-9c09-47b1-9dc6-52fcbc0e0e6a" name="Changes" comment="add new params">
+      <change afterPath="$PROJECT_DIR$/Nomenklatura_garantiynogo_fonda_2023_god_kod_ERP_tseny.xlsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/google/sheets/authorize/GoogleShitsAuthorize.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/parsers/DateParser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/14_04_2023_VIKS_009-013_Svodnaya_s_kodami_ERP_dlya_zalivki_tsen.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/14_04_2023_VIKS_009-013_Svodnaya_s_kodami_ERP_dlya_zalivki_tsen.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/loaders/XSLXLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/loaders/XSLXLoader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/main/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/main/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/model/CostPrice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/CostPrice.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/model/Model.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Model.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Product.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,24 +39,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "extract.method.default.visibility": "private",
-    "last_opened_file_path": "C:/Users/Artemix/IdeaProjects/Converter",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.XML"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Artemix/IdeaProjects/Converter&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.XML&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Artemix\IdeaProjects\Converter" />
@@ -70,7 +69,7 @@
     <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="main.Main" />
       <module name="Digitalization" />
-      <option name="PROGRAM_PARAMETERS" value="&quot;14_04_2023_VIKS_009-013_Svodnaya_s_kodami_ERP_dlya_zalivki_tsen.xlsx&quot; &quot;Vygruzka_sebestoimost.xlsx&quot; &quot;Nomenklatura.xlsx&quot;" />
+      <option name="PROGRAM_PARAMETERS" value="&quot;updated_14_04_2023_VIKS_009-013_Svodnaya_s_kodami_ERP_dlya_zalivki_tsen.xlsx&quot; &quot;Nomenklatura_garantiynogo_fonda_2023_god_kod_ERP_tseny.xlsx&quot;" />
       <option name="VM_PARAMETERS" value="-Xmx4096m" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -97,8 +96,32 @@
       <workItem from="1681675625129" duration="456000" />
       <workItem from="1681711421178" duration="12535000" />
       <workItem from="1681735892513" duration="9927000" />
-      <workItem from="1681820605719" duration="9475000" />
+      <workItem from="1681820605719" duration="10117000" />
+      <workItem from="1681902884916" duration="11592000" />
+      <workItem from="1681975299137" duration="2030000" />
+      <workItem from="1681990853915" duration="10697000" />
+      <workItem from="1682074657367" duration="6996000" />
+      <workItem from="1682320631893" duration="9123000" />
+      <workItem from="1682331128189" duration="7883000" />
+      <workItem from="1682363447622" duration="703000" />
+      <workItem from="1682405217638" duration="3988000" />
+      <workItem from="1682493632338" duration="12772000" />
+      <workItem from="1682596524536" duration="1612000" />
+      <workItem from="1683050178751" duration="39000" />
+      <workItem from="1683123245940" duration="2863000" />
+      <workItem from="1683182457735" duration="18646000" />
+      <workItem from="1683275946314" duration="330000" />
+      <workItem from="1683276346981" duration="3319000" />
+      <workItem from="1683630542343" duration="1446000" />
     </task>
+    <task id="LOCAL-00001" summary="add new params">
+      <created>1681849314787</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1681849314787</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -115,6 +138,10 @@
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add new params" />
+    <option name="LAST_COMMIT_MESSAGE" value="add new params" />
+  </component>
   <component name="XDebuggerManager">
     <watches-manager>
       <configuration name="Application">
@@ -122,6 +149,7 @@
         <watch expression="((XSSFSheet)sheet)._rows" custom="org.apache.poi.xssf.usermodel.XSSFSheet" />
         <watch expression="cellStyle" />
         <watch expression="orders" />
+        <watch expression="rpi" />
       </configuration>
     </watches-manager>
   </component>

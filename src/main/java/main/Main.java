@@ -8,14 +8,16 @@ import java.util.List;
 public class Main {
     @SneakyThrows
     public static void main(String[] args) {
-        XSLXLoader loader = new XSLXLoader(args[1], args[0], args[2]);
+        XSLXLoader loader = new XSLXLoader(args[0], args[1], null, true);
+        loader.exportResources(10, 0);
+
 //        loader.load();
 //        loader.createDataSet();
-     //  loader.export("test", "test.xlsx");
-        loader.loadCostPrice();
-        loader.loadNomenclatures();
-        loader.loadSupportCatalog();
-        loader.updateSheet(10, false);
+//       loader.export("date_with_nomenclature", "date_with_nomenclature.xlsx");
+//        loader.loadCostPrice();
+//        loader.loadNomenclatures();
+//        loader.loadSupportCatalog();
+//        loader.updateSheet(10, false);
 
         //System.out.println(loader.getTableModels());
     }
