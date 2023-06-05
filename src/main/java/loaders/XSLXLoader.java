@@ -1,14 +1,13 @@
 package loaders;
 
-import model.CostPrice;
-import model.Model;
-import model.Nomenclature;
-import model.Product;
+import fuzzy_matcher.match.Matcher;
+import model.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import parsers.DateParser;
+import parsers.ParametersParser;
 
 import java.io.*;
 import java.text.ParseException;
@@ -19,18 +18,30 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.poi.ss.usermodel.CellType.STRING;
+import static org.apache.poi.ss.usermodel.CellType.*;
 
 public class XSLXLoader {
 
     private static final String[] headers = {"Код", "Номенклатура", "ЖО", "ДЗП", "ДП", "ДОПЛ", "ДПО", "ДПр"};
+    private static final String[] headers_diff = {"Код", "Номенклатура"};
     private static final String KVL_ARKS_013 = "ВИКС 2022-2024 / 013 КВЛ-АРКС";
     private static final String KVL_ARKS_012 = "ВИКС 2022-2024 / 012 КВЛ-АРКС";
 
 //    private static final String
 
+    private ParametersParser parametersParser;
     private Workbook workbook;
+
+    private Workbook wagonWorkbook;
+    private Workbook referenceWorkbook;
+
+    private List<List<String>> referenceList;
+
+    private ArrayList<ArrayList<String>> ptiuList;
+    private Workbook ptiuWorkbook;
     private Workbook writeWorkbook;
+
+    private DateParser dateParser;
 
     private Workbook nomenclaturesWorkbook;
 
@@ -40,6 +51,8 @@ public class XSLXLoader {
 
     private Workbook importWorkBook;
     private Workbook exportWorkbook;
+
+    private Workbook checkWorkbook;
 
     private List<List<String>> transferOrders;
     private List<List<String>> suppliersOrders;
@@ -54,18 +67,27 @@ public class XSLXLoader {
     private List<Product> products;
 
     private List<Model> tableModels;
+
+    private List<DifferenceDate> differenceDates;
+
+    private List<CalculatedDifferenceDate> calculatedDifferenceDates;
     private String fileName;
 
     private List<List<String>> targetProducts;
-    private List<List<String>> priceList;
+    private ArrayList<ArrayList<String>> priceList;
 
     private List<Nomenclature> nomenclatures;
     private String outputFileName;
 
     private String nomenclaturesFileName;
 
-    public XSLXLoader(String fileName, String secondFileName, String nomenclaturesFileName, boolean isExportImportMode) throws IOException {
-        if(!isExportImportMode) {
+    private ArrayList<ArrayList<String>> dataSet;
+    private ArrayList<ArrayList<String>> directoryDataSet;
+
+    private Matcher matcher;
+
+    public XSLXLoader(String fileName, String secondFileName, String checkFileName, String nomenclaturesFileName, boolean isExportImportMode) throws IOException {
+        if (!isExportImportMode) {
             this.fileName = fileName;
             this.file = new FileInputStream(new File(fileName));
             this.workbook = new XSSFWorkbook(file);
@@ -76,13 +98,77 @@ public class XSLXLoader {
             this.purchaseByCustomer = new ArrayList();
             this.tableModels = new ArrayList<>();
             this.targetProducts = new ArrayList<>();
-            this.priceList = new ArrayList<>();
-        }
-        else {
-            ZipSecureFile.setMinInflateRatio(0);
+
+            this.differenceDates = new ArrayList<>();
+            this.calculatedDifferenceDates = new ArrayList<>();
+            this.dateParser = DateParser.getInstance();
+        } else {
+            this.parametersParser = ParametersParser.getInstance();
+            this.ptiuList = new ArrayList<ArrayList<String>>();
+            this.matcher = new Matcher();
             this.importWorkBook = new XSSFWorkbook(new FileInputStream(fileName));
             this.exportWorkbook = new XSSFWorkbook(new FileInputStream(secondFileName));
+            this.ptiuWorkbook = new XSSFWorkbook(new FileInputStream(checkFileName));
+            this.ptiuList = parse(9, ptiuWorkbook);
+            for(int i = 0; i < 9; i++){
+                ptiuList.remove(0);
+            }
+            dataSet = parseForAlgoritphm(false,2, exportWorkbook, 7,
+                    5, 6, 8, 9, 0, 0);
+            directoryDataSet = parseForAlgoritphm( true,0, importWorkBook, 3,
+                    1, 2, 4,3, 6, 7);
         }
+
+
+
+    }
+
+    public ArrayList<ArrayList<String>> getPtiuList(){
+        return ptiuList;
+    }
+
+    public void matchDataSet(){
+        matcher.setWorkDataSet(dataSet, 0, 1);
+        matcher.setDirectoryDataSet(directoryDataSet, 0, 1);
+        matcher.match(0, 1, 0, 1);
+    }
+
+    public void exportDataSet() throws IOException {
+
+        Sheet sheet = importWorkBook.getSheetAt(0);
+//
+//        int index = 0;
+//
+//        CellStyle cellStyle = sheet.getRow(10).getCell(7).getCellStyle();
+//
+//        for(Row row : sheet){
+//            if(row.getRowNum() > 7){
+//                if(row.getCell(5).getStringCellValue().equals("")){
+//                    continue;
+//                }
+//                if(row.getCell(7).getStringCellValue() == null) {
+//                    createCellString(row, 7, dataSet.get(index).get(2), cellStyle);
+//                    createCellString(row, 8, dataSet.get(index).get(3), cellStyle);
+//                } else {
+//                    row.getCell(7).setCellValue(dataSet.get(index).get(2));
+//                    row.getCell(8).setCellValue(dataSet.get(index).get(3));
+//                }
+//                index++;
+//                if(index == dataSet.size() - 1){
+//                    break;
+//                }
+//            }
+//        }
+
+        parametersParser.filterByNomenclatureForRPI(sheet, ptiuList, 3, 1, 0, 6);
+
+        File currDir = new File(".");
+        String path = currDir.getAbsolutePath();
+        String fileLocation = path.substring(0, path.length() - 1) + "Spravochnik_KD_with_prices.xlsx";
+
+        FileOutputStream outputStream = new FileOutputStream(fileLocation);
+       importWorkBook.write(outputStream);
+    }
 
 
 //        this.secondFile = new FileInputStream(new File(secondFileName));
@@ -94,17 +180,26 @@ public class XSLXLoader {
 //        this.nomenclaturesFileName = nomenclaturesFileName;
 //        this.nomenclaturesWorkbook = new XSSFWorkbook(new FileInputStream(nomenclaturesFileName));
 //        this.listKVLARKS013 = new ArrayList<>();
+
+
+    public XSLXLoader() {
+        parametersParser = ParametersParser.getInstance();
     }
 
-    private List<List<String>> parse(int numberOfSheet, Workbook workbook) throws FileNotFoundException {
-        List<List<String>> dataSheet = new ArrayList();
+
+
+    private ArrayList<ArrayList<String>> parse(int numberOfSheet, Workbook workbook) throws FileNotFoundException {
+        ArrayList<ArrayList<String>> dataSheet = new ArrayList<>();
         int i = 0;
         Sheet sheet = workbook.getSheetAt(numberOfSheet);
         for (Row row : sheet) {
             dataSheet.add(new ArrayList());
             for (Cell cell : row) {
 
+
+
                 switch (cell.getCellType()) {
+
 
                     case STRING:
                         dataSheet.get(i).add(cell.getRichStringCellValue().getString());
@@ -117,45 +212,123 @@ public class XSLXLoader {
                         }
                         break;
                     case BLANK:
-                        dataSheet.get(i).add(null);
+                        dataSheet.get(i).add("");
                         break;
                 }
             }
+
             i++;
         }
-        dataSheet.remove(0);
+        return dataSheet;
+    }
+
+
+    private ArrayList<ArrayList<String>> parseForAlgoritphm(boolean analogType,int numberOfSheet, Workbook workbook, int indexRpi,
+                                                  int indexNomenclature, int indexArticle,
+                                                            int indexERPName, int indexRowBegin, int indexAnalog,  int indexAnalogErp) throws FileNotFoundException {
+        ArrayList<ArrayList<String>> dataSheet = new ArrayList();
+        int i = 0;
+        Sheet sheet = workbook.getSheetAt(numberOfSheet);
+        for (Row row : sheet) {
+            if(row.getRowNum() > indexRowBegin &&
+                    row.getCell(indexNomenclature).getCellType() != BLANK &&
+                    row.getCell(indexNomenclature).getCellType() != ERROR) {
+                ArrayList<String> cells = new ArrayList<>();
+                for (Cell cell : row) {
+
+                    if(analogType) {
+
+                        if (cell.getColumnIndex() == indexRpi ||
+                                cell.getColumnIndex() == indexNomenclature || cell.getColumnIndex() == indexArticle
+                                || cell.getColumnIndex() == indexERPName || cell.getColumnIndex() == indexAnalog
+                                || cell.getColumnIndex() == indexAnalogErp) {
+
+                            switch (cell.getCellType()) {
+
+
+                                case STRING:
+                                    cells.add(cell.getRichStringCellValue().getString());
+                                    break;
+                                case NUMERIC:
+                                    if (DateUtil.isCellDateFormatted(cell)) {
+                                        cells.add(cell.getDateCellValue() + "");
+                                    } else {
+                                        cells.add(cell.getNumericCellValue() + "");
+                                    }
+                                    break;
+                                case BLANK:
+                                case ERROR:
+                                    cells.add("");
+                                    break;
+                            }
+                        }
+                    } else {
+                        if (cell.getColumnIndex() == indexRpi ||
+                                cell.getColumnIndex() == indexNomenclature || cell.getColumnIndex() == indexArticle
+                                || cell.getColumnIndex() == indexERPName) {
+
+                            switch (cell.getCellType()) {
+
+
+                                case STRING:
+                                    cells.add(cell.getRichStringCellValue().getString());
+                                    break;
+                                case NUMERIC:
+                                    if (DateUtil.isCellDateFormatted(cell)) {
+                                        cells.add(cell.getDateCellValue() + "");
+                                    } else {
+                                        cells.add(cell.getNumericCellValue() + "");
+                                    }
+                                    break;
+                                case BLANK:
+                                case ERROR:
+                                    cells.add("");
+                                    break;
+                            }
+                        }
+                    }
+
+                }
+                if(cells.size() == 3){
+                    cells.add(1, "");
+                }
+                dataSheet.add(cells);
+            }
+
+        }
         return dataSheet;
     }
 
 
 
 
-    public void loadNomenclatures() throws FileNotFoundException {
 
-        List<List<String>> prevNomenclatures = parse(0, nomenclaturesWorkbook);
-
-        for (List<String> item : prevNomenclatures) {
-            Nomenclature nomenclature = new Nomenclature();
-            if (item.size() == 4) {
-
-                nomenclature.setCode(item.get(0));
-                nomenclature.setName(item.get(1));
-                nomenclature.setArticle(item.get(2));
-                nomenclature.setCreator(item.get(3));
-            }
-            if (item.size() == 2) {
-                nomenclature.setCode(item.get(0));
-                nomenclature.setName(item.get(1));
-            }
-            if (item.size() == 3) {
-                nomenclature.setCode(item.get(0));
-                nomenclature.setName(item.get(1));
-                nomenclature.setArticle(item.get(2));
-            }
-            nomenclatures.add(nomenclature);
-        }
-
-    }
+//    public void loadNomenclatures() throws FileNotFoundException {
+//
+//        List<List<String>> prevNomenclatures = parse(0, nomenclaturesWorkbook);
+//
+//        for (List<String> item : prevNomenclatures) {
+//            Nomenclature nomenclature = new Nomenclature();
+//            if (item.size() == 4) {
+//
+//                nomenclature.setCode(item.get(0));
+//                nomenclature.setName(item.get(1));
+//                nomenclature.setArticle(item.get(2));
+//                nomenclature.setCreator(item.get(3));
+//            }
+//            if (item.size() == 2) {
+//                nomenclature.setCode(item.get(0));
+//                nomenclature.setName(item.get(1));
+//            }
+//            if (item.size() == 3) {
+//                nomenclature.setCode(item.get(0));
+//                nomenclature.setName(item.get(1));
+//                nomenclature.setArticle(item.get(2));
+//            }
+//            nomenclatures.add(nomenclature);
+//        }
+//
+//    }
 
 
     private CellStyle getRPIStyle(){
@@ -177,35 +350,83 @@ public class XSLXLoader {
         return cellRpiStyle;
     }
 
-    public void load() throws FileNotFoundException {
-        transferOrders = parse(0, workbook);
-        suppliersOrders = parse(1, workbook);
-        paymentOrders = parse(2, workbook);
-        purchaseByCustomer = parse(3, workbook);
+//    public void load() throws FileNotFoundException {
+//        transferOrders = parse(0, workbook);
+//        suppliersOrders = parse(1, workbook);
+//        paymentOrders = parse(2, workbook);
+//        purchaseByCustomer = parse(3, workbook);
+//
+//
+//
+//        transferOrders.remove(0);
+//        suppliersOrders.remove(0);
+//        paymentOrders.remove(0);
+//        purchaseByCustomer.remove(0);
+//    }
 
+//    public void loadWagonDataset(String nomenclaturesWagonFile, String nomenclaturesReferenceFile, String PTIUFileName) throws IOException {
+//        this.wagonWorkbook = new XSSFWorkbook(new FileInputStream(nomenclaturesWagonFile));
+//        this.referenceWorkbook = new XSSFWorkbook(new FileInputStream(nomenclaturesReferenceFile));
+//        this.ptiuWorkbook = new XSSFWorkbook(new FileInputStream(PTIUFileName));
+//
+//        this.referenceList =  parse(0, referenceWorkbook);
+//        parametersParser.setNomenclatureReference(referenceList);
+//
+//        for (int i = 0; i <= 8; i++){
+//            this.ptiuList.remove(0);
+//        }
+//    }
 
+//    public void exportUpdateWagon(String exportFileName) throws IOException {
+//
+//        Sheet wagonSheet = wagonWorkbook.getSheetAt(0);
+//
+//        parametersParser.filterByNomenclatureForRPI(wagonSheet,
+//                ptiuList, 0, 7, 5, 1,
+//                6, 0,0, 17, 7
+//                );
+//
+//        File currDir = new File(".");
+//        String path = currDir.getAbsolutePath();
+//        String fileLocation = path.substring(0, path.length() - 1) + exportFileName;
+//
+//        FileOutputStream outputStream = new FileOutputStream(fileLocation);
+//        wagonWorkbook.write(outputStream);
+//    }
 
-        transferOrders.remove(0);
-        suppliersOrders.remove(0);
-        paymentOrders.remove(0);
-        purchaseByCustomer.remove(0);
-    }
+//    public void exportUpdateWagonByArticle(String exportFileName) throws IOException {
+//
+//        Sheet wagonSheet = wagonWorkbook.getSheetAt(0);
+//        Sheet referenceSheet = referenceWorkbook.getSheetAt(0);
+//
+//        parametersParser.filterRPIByArticle(wagonSheet, referenceSheet,
+//                ptiuList, 0, 2,
+//                5, 2,0, 13, 7
+//        );
+//
+//        File currDir = new File(".");
+//        String path = currDir.getAbsolutePath();
+//        String fileLocation = path.substring(0, path.length() - 1) + exportFileName;
+//
+//        FileOutputStream outputStream = new FileOutputStream(fileLocation);
+//        wagonWorkbook.write(outputStream);
+//    }
 
-    public void loadCostPrice() throws FileNotFoundException {
-        costPrice.setOrdersToSuppliers(parse(0, workbook));
-        costPrice.setTransferOrders(parse(1, workbook));
-        costPrice.setPurchases(parse(2, workbook));
-
-    }
-
-    public void loadSupportCatalog() throws FileNotFoundException {
-        listKVLARKS013 = parse(9, secondWorkbook);
-        int index = 0;
-        while (index < 9){
-            listKVLARKS013.remove(0);
-            index++;
-        }
-    }
+//    public void loadCostPrice() throws FileNotFoundException {
+//        costPrice.setOrdersToSuppliers(parse(0, workbook));
+//        costPrice.setTransferOrders(parse(1, workbook));
+//        costPrice.setPurchases(parse(2, workbook));
+//
+//    }
+//
+//    public void loadSupportCatalog() throws FileNotFoundException {
+//        listKVLARKS013 = parse(9, secondWorkbook);
+//        int index = 0;
+//        while (index < 9){
+//            listKVLARKS013.remove(0);
+//            index++;
+//        }
+//    }
 
     public void loadFilePrice() throws FileNotFoundException {
         priceList = parse(0, workbook);
@@ -406,6 +627,9 @@ public class XSLXLoader {
         secondWorkbook.close();
 
     }
+
+
+
 
     private void checkElementInSupportCatalog(String rpi, Row row, CellStyle cellStyle){
 
@@ -810,6 +1034,180 @@ public class XSLXLoader {
         }
     }
 
+    public void fillVIKS(){
+
+    }
+
+    public void createDataSetFromDifferenceDate() throws ParseException {
+
+
+
+        while (!transferOrders.isEmpty()) {
+
+            StringBuilder desiredDocumentDate = new StringBuilder();
+
+            List<String> document = transferOrders.get(0);
+
+            String code = document.get(2);
+            String nomenclature = document.get(3);
+            String documentName = document.get(0).split(" ")[3];
+            desiredDocumentDate.append(document.get(0).split(" ")[5]);
+
+            List<List<String>> currentTransferOrders = transferOrders.stream()
+                    .filter(item -> item.get(2).contains(code) && item.get(3).contains(nomenclature)).toList();
+
+            List<List<String>> currentSuppliersOrders = new ArrayList<>(suppliersOrders.stream()
+                    .filter(item -> item.get(3)!= null && item.get(3).contains(documentName) && item.get(1)!= null &&
+                            item.get(1).contains(code) && item.get(2) != null && item.get(2).contains(nomenclature)).toList());
+
+            if (currentSuppliersOrders.size() == 0) {
+                DifferenceDate differenceDate = new DifferenceDate();
+                differenceDate.setErp(code);
+                differenceDate.setNomenclature(nomenclature);
+                differenceDates.add(differenceDate);
+            }
+            while (currentSuppliersOrders.size() > 0) {
+                StringBuilder desiredDate = new StringBuilder();
+                StringBuilder supplierDocument = new StringBuilder();
+                StringBuilder supplierFactDate = new StringBuilder();
+                StringBuilder purchaseDate = new StringBuilder();
+                StringBuilder completeDate = new StringBuilder();
+                List<String> order = currentSuppliersOrders.get(0);
+                String orderName = order.get(0).split(" ")[2];
+                String supplierDate = order.get(0).split(" ")[4];
+                supplierDocument.append(supplierDate);
+
+                if(orderName != null) {
+                    List<List<String>> currentPaymentOrders = paymentOrders.stream()
+                            .filter(item -> item.get(3) != null && item.get(3).contains(orderName)).toList();
+
+                    List<List<String>> currentPurchaseByCustomer = purchaseByCustomer.stream()
+                            .filter(item -> item.get(2) != null && item.get(2).contains(orderName) && item.get(3).contains(code) &&
+                                    item.get(4).contains(nomenclature)).toList();
+
+
+                    DifferenceDate differenceDate = new DifferenceDate();
+                    if (currentPurchaseByCustomer.size() > 0 && currentPaymentOrders.size() > 0) {
+
+                        differenceDate.setErp(code);
+                        differenceDate.setNomenclature(nomenclature);
+
+
+                        if (document.get(1) != null) {
+
+                            desiredDate.append(document.get(1));
+                            differenceDate.setDifferenceByDesired(dateParser.differenceDateByDay(desiredDocumentDate.toString(),
+                                    desiredDate.toString()));
+                        }
+
+                       supplierFactDate.append(order.get(5));
+                       purchaseDate.append(currentPaymentOrders.get(0).get(1));
+
+
+
+                        completeDate.append(currentPurchaseByCustomer.get(0).get(1));
+
+
+
+                        differenceDate.setDifferenceByEntry(dateParser.differenceDateByDay(supplierDocument.toString(), supplierFactDate.toString()));
+
+                        String purchase = purchaseDate.toString();
+
+                        if( !purchase.equals("null")) {
+
+                            differenceDate.setDifferenceByPurchase(dateParser
+                                    .differenceDateByDay(supplierDocument.toString(), purchase));
+                        } else {
+                            differenceDate.setDifferenceByPurchase(-1);
+                        }
+                        differenceDate.setDifferenceByComplete(dateParser
+                                .differenceDateByDay(supplierDocument.toString(), completeDate.toString()));
+
+                        differenceDates.add(differenceDate);
+
+
+                    }
+                    List<List<String>> orders = currentSuppliersOrders.stream().filter(item -> item.get(0).contains(orderName) && item.get(5).contains(order.get(5))).toList();
+                    currentSuppliersOrders.removeAll(orders);
+                    suppliersOrders.removeAll(orders);
+                    paymentOrders.removeAll(currentPaymentOrders);
+                    purchaseByCustomer.removeAll(currentPurchaseByCustomer);
+                }
+            }
+            transferOrders.remove(0);
+
+        }
+
+        ArrayList<DifferenceDate> workDifferenceDate = new ArrayList<>(differenceDates);
+
+        while (workDifferenceDate.size() > 0){
+            String erp = workDifferenceDate.get(0).getErp();
+            String nomenclature = workDifferenceDate.get(0).getNomenclature();
+            List<DifferenceDate> currentDiffDates = workDifferenceDate.stream().filter(item -> item.getErp().equals(erp)
+            ).toList();
+
+            if(currentDiffDates.size() == 1){
+                CalculatedDifferenceDate calculatedDifferenceDate = new CalculatedDifferenceDate();
+                calculatedDifferenceDate.setErp(erp);
+                calculatedDifferenceDate.setNomenclature(nomenclature);
+                calculatedDifferenceDate.setLastDifferenceByEntry(currentDiffDates.get(0).getDifferenceByEntry());
+                calculatedDifferenceDate.setLastDifferenceByDesired(currentDiffDates.get(0).getDifferenceByDesired());
+                calculatedDifferenceDate.setLastDifferenceByComplete(currentDiffDates.get(0).getDifferenceByComplete());
+                calculatedDifferenceDate.setLastDifferenceByPurchase(currentDiffDates.get(0).getDifferenceByPurchase());
+                calculatedDifferenceDate.setMaxDifferenceByEntry(currentDiffDates.get(0).getDifferenceByEntry());
+                calculatedDifferenceDate.setMaxDifferenceByDesired(currentDiffDates.get(0).getDifferenceByDesired());
+                calculatedDifferenceDate.setMaxDifferenceByComplete(currentDiffDates.get(0).getDifferenceByComplete());
+                calculatedDifferenceDate.setMaxDifferenceByPurchase(currentDiffDates.get(0).getDifferenceByPurchase());
+                calculatedDifferenceDates.add(calculatedDifferenceDate);
+            }
+            if(currentDiffDates.size() > 1){
+                CalculatedDifferenceDate calculatedDifferenceDate = new CalculatedDifferenceDate();
+                calculatedDifferenceDate.setErp(erp);
+                calculatedDifferenceDate.setNomenclature(nomenclature);
+                Optional<DifferenceDate> maxComplete =  currentDiffDates.stream().max(Comparator.comparing(DifferenceDate::getDifferenceByComplete));
+                Optional<DifferenceDate> maxEntry =  currentDiffDates.stream().max(Comparator.comparing(DifferenceDate::getDifferenceByEntry));
+                Optional<DifferenceDate> maxDesired =  currentDiffDates.stream().max(Comparator.comparing(DifferenceDate::getDifferenceByDesired));
+                Optional<DifferenceDate> maxPurchase =  currentDiffDates.stream().max(Comparator.comparing(DifferenceDate::getDifferenceByPurchase));
+                calculatedDifferenceDate.setMaxDifferenceByEntry(maxEntry.get().getDifferenceByEntry());
+                calculatedDifferenceDate.setMaxDifferenceByDesired(maxDesired.get().getDifferenceByDesired());
+                calculatedDifferenceDate.setMaxDifferenceByComplete(maxComplete.get().getDifferenceByComplete());
+                calculatedDifferenceDate.setMaxDifferenceByPurchase(maxPurchase.get().getDifferenceByPurchase());
+
+                double[] averages = getAverageParams(currentDiffDates);
+
+                calculatedDifferenceDate.setLastDifferenceByEntry(averages[1]);
+                calculatedDifferenceDate.setLastDifferenceByDesired(averages[0]);
+                calculatedDifferenceDate.setLastDifferenceByComplete(averages[3]);
+                calculatedDifferenceDate.setLastDifferenceByPurchase(averages[2]);
+                calculatedDifferenceDates.add(calculatedDifferenceDate);
+
+            }
+
+            workDifferenceDate.removeAll(currentDiffDates);
+        }
+
+    }
+
+   public double[] getAverageParams(List<DifferenceDate> differenceDates){
+        double[] result = {0, 0, 0, 0};
+
+        for(DifferenceDate differenceDate : differenceDates){
+            result[0] += differenceDate.getDifferenceByDesired();
+            result[1] += differenceDate.getDifferenceByEntry();
+            result[2] += differenceDate.getDifferenceByPurchase();
+            result[3] +=differenceDate.getDifferenceByComplete();
+        }
+
+        result[0] = result[0] / differenceDates.size();
+        result[1] = result[1] / differenceDates.size();
+        result[2] = result[2] / differenceDates.size();
+        result[3] = result[3] / differenceDates.size();
+
+        return  result;
+   }
+
+
+
 
     public void exportResources(int sheetImportIndex, int sheetExportIndex) throws IOException {
 
@@ -853,6 +1251,52 @@ public class XSLXLoader {
 
     }
 
+    public void exportResources(int sheetImportIndex, int sheetExportIndex, int sheetCheckIndex) throws IOException {
+
+        Sheet importSheet = importWorkBook.getSheetAt(sheetImportIndex);
+        Sheet exportSheet = exportWorkbook.getSheetAt(sheetExportIndex);
+        Sheet checkSheet = checkWorkbook.getSheetAt(sheetCheckIndex);
+        Sheet nomenclatureSheet = secondWorkbook.getSheetAt(0);
+
+        int index = 0;
+
+        for (Row row : exportSheet) {
+
+            if (row.getRowNum() >= 7) {
+                if(row.getCell(2).getCellType() == BLANK) {
+                    continue;
+                }
+                String name;
+                String obj;
+                if(row.getCell(3).getCellType() == STRING) {
+                    name = row.getCell(3).getStringCellValue();
+                } else {
+                    name = "" + row.getCell(3).getNumericCellValue();
+                }
+
+
+                //findERPInXLSXFile(nomenclatureSheet, rpi, row, false);
+                if(row.getCell(2)!= null) {
+                    String rpi = row.getCell(2).getStringCellValue();
+                    if (rpi.equals("")) {
+                        continue;
+                    }
+                    findERPInXLSXFile(nomenclatureSheet, rpi, row, false);
+                }
+            }
+        }
+
+        File currDir = new File(".");
+        String path = currDir.getAbsolutePath();
+        String fileLocation = path.substring(0, path.length() - 1) + "updatedERP_515_prices_release.xlsx";
+
+
+        FileOutputStream outputStream = new FileOutputStream(fileLocation);
+        exportWorkbook.write(outputStream);
+        exportWorkbook.close();
+
+    }
+
     private void findERPInXLSXFile(Sheet importSheet, String name,  String obj, Row exportRow){
         for(Row row : importSheet) {
             if (row.getRowNum() > 7) {
@@ -869,6 +1313,74 @@ public class XSLXLoader {
                 }
             }
         }
+    }
+
+    private void findERPInXLSXFile(Sheet importSheet, Sheet checkSheet, String name,  String obj, Row exportRow){
+        for(Row row : importSheet) {
+            if (row.getRowNum() > 7) {
+                if (row.getCell(2).getStringCellValue().contains(name) ||
+                        row.getCell(2).getStringCellValue().contains(obj)) {
+
+                    String rpi = row.getCell(1).getStringCellValue();
+                    Double price = row.getCell(9).getNumericCellValue();
+                    String nds = row.getCell(8).getStringCellValue();
+                    if(nds.equals("ВИКС 2022-2024 / 013 КВЛ-АРКС")){
+                        nds = "Без НДС";
+                    }
+                    if(checkSheet.getRow(row.getRowNum()) != null &&
+                            checkSheet.getRow(row.getRowNum()).getCell(1) != null &&
+                            checkSheet.getRow(row.getRowNum()).getCell(1).getCellType() == BLANK) {
+                        XSSFFont font = ((XSSFWorkbook) exportWorkbook).createFont();
+                        font.setUnderline(Font.U_DOUBLE);
+                        exportRow.getCell(10).getCellStyle().setFont(font);
+                    }
+                    if(exportRow.getCell(10) != null) {
+                        exportRow.getCell(10).setCellValue(rpi);
+
+                    }
+                    createCellNumeric(exportRow, 24, price, exportRow.getCell(22).getCellStyle());
+                    createCellString(exportRow, 23, nds, exportRow.getCell(22).getCellStyle());
+                }
+            }
+        }
+    }
+
+    private void findERPInXLSXFile(Sheet importSheet, String rpi, Row exportRow){
+        for(Row row : importSheet) {
+            if (row.getRowNum() > 8) {
+                if (row.getCell(0).getStringCellValue().contains(rpi)) {
+
+                    Double price = row.getCell(10).getNumericCellValue();
+                    String nds = row.getCell(7).getStringCellValue();
+
+
+                    createCellNumeric(exportRow, 13, price, exportRow.getCell(11).getCellStyle());
+                    createCellString(exportRow, 12, nds, exportRow.getCell(11).getCellStyle());
+                }
+            }
+        }
+    }
+
+    private void findERPInXLSXFile(Sheet importSheet, String name, Row exportRow, boolean config){
+        for(Row row : importSheet) {
+            if (row.getRowNum() > 1) {
+
+
+                if (row.getCell(5).getStringCellValue().contains(name)) {
+
+                    if( row.getCell(6) != null) {
+                        String nomenclature = row.getCell(6).getStringCellValue();
+
+                        exportRow.getCell(3).setCellValue(nomenclature);
+                    }
+                }
+            }
+
+        }
+    }
+
+    public void rewriteFile(String fileName){
+
     }
 
     public void export(String sheetName, String fileName) throws IOException {
@@ -922,6 +1434,109 @@ public class XSLXLoader {
 
 
                 rowIndex++;
+            }
+
+            File currDir = new File(".");
+            String path = currDir.getAbsolutePath();
+            String fileLocation = path.substring(0, path.length() - 1) + fileName;
+
+            FileOutputStream outputStream = new FileOutputStream(fileLocation);
+            writeWorkbook.write(outputStream);
+
+        } finally {
+            if (writeWorkbook != null) {
+
+                writeWorkbook.close();
+
+            }
+        }
+    }
+
+
+
+
+    public void exportDifference(String sheetName, String secondSheetName, String fileName) throws IOException {
+
+        try {
+
+
+            Sheet sheet = writeWorkbook.createSheet(sheetName);
+
+            Sheet secondSheet = writeWorkbook.createSheet(secondSheetName);
+
+            sheet.setColumnWidth(0, 6000);
+            sheet.setColumnWidth(1, 4000);
+
+            secondSheet.setColumnWidth(0, 6000);
+            secondSheet.setColumnWidth(1, 4000);
+
+
+            Row header = sheet.createRow(0);
+
+            Row secondHeader = secondSheet.createRow(0);
+
+            CellStyle headerStyle = writeWorkbook.createCellStyle();
+
+            headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            XSSFFont font = ((XSSFWorkbook) workbook).createFont();
+            font.setFontName("Arial");
+            font.setFontHeightInPoints((short) 16);
+            font.setBold(true);
+            headerStyle.setFont(font);
+
+
+
+
+            int headerCellIndex = 0;
+            for (String headerCellName : headers_diff) {
+                Cell headerCell = header.createCell(headerCellIndex);
+                headerCell.setCellValue(headerCellName);
+                headerCell.setCellStyle(headerStyle);
+
+                Cell secondHeaderCell = secondHeader.createCell(headerCellIndex);
+                secondHeaderCell.setCellValue(headerCellName);
+                secondHeaderCell.setCellStyle(headerStyle);
+
+                headerCellIndex++;
+            }
+
+            CellStyle style = writeWorkbook.createCellStyle();
+            style.setWrapText(true);
+
+            int rowIndex = 2;
+
+            for (DifferenceDate differenceDate : differenceDates) {
+                Row row = sheet.createRow(rowIndex);
+                createCellString(row, 0, differenceDate.getErp(), style);
+                createCellString(row, 1, differenceDate.getNomenclature(), style);
+                createCellNumeric(row, 2, (double) differenceDate.getDifferenceByDesired(), style);
+                createCellNumeric(row, 3, (double) differenceDate.getDifferenceByEntry(), style);
+                createCellNumeric(row, 4, (double) differenceDate.getDifferenceByPurchase(), style);
+                createCellNumeric(row, 5, (double) differenceDate.getDifferenceByComplete(), style);
+
+
+
+                rowIndex++;
+            }
+
+            int secondRowIndex = 2;
+
+            for (CalculatedDifferenceDate calculatedDifferenceDate : calculatedDifferenceDates) {
+                Row row = secondSheet.createRow(secondRowIndex);
+                createCellString(row, 0, calculatedDifferenceDate.getErp(), style);
+                createCellString(row, 1, calculatedDifferenceDate.getNomenclature(), style);
+                createCellNumeric(row, 2, calculatedDifferenceDate.getLastDifferenceByDesired(), style);
+                createCellNumeric(row, 3, (double) calculatedDifferenceDate.getMaxDifferenceByDesired(), style);
+                createCellNumeric(row, 4, calculatedDifferenceDate.getLastDifferenceByEntry(), style);
+                createCellNumeric(row, 5, (double) calculatedDifferenceDate.getMaxDifferenceByEntry(), style);
+                createCellNumeric(row, 6, calculatedDifferenceDate.getLastDifferenceByPurchase(), style);
+                createCellNumeric(row, 7, (double) calculatedDifferenceDate.getMaxDifferenceByPurchase(), style);
+                createCellNumeric(row, 8, calculatedDifferenceDate.getLastDifferenceByComplete(), style);
+                createCellNumeric(row, 9, (double) calculatedDifferenceDate.getMaxDifferenceByComplete(), style);
+
+                secondRowIndex++;
             }
 
             File currDir = new File(".");

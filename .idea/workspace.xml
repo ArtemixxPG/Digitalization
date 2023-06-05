@@ -4,16 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7dbea541-9c09-47b1-9dc6-52fcbc0e0e6a" name="Changes" comment="add new params">
+    <list default="true" id="7dbea541-9c09-47b1-9dc6-52fcbc0e0e6a" name="Changes" comment="add authorize file for Google sheets">
+      <change afterPath="$PROJECT_DIR$/DKI_515_BIM.xlsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DKI_515_Iabanov.xlsx" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/Nomenklatura_garantiynogo_fonda_2023_god_kod_ERP_tseny.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/google/sheets/authorize/GoogleShitsAuthorize.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/parsers/DateParser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/constants/Article.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fuzzy_matcher/match/FuzzyMatcher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fuzzy_matcher/match/Matcher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fuzzy_matcher/preprocessing/FuzzyPreprocessing.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/fuzzy_matcher/preprocessing/Preprocessing.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/google/sheets/authorize/GoogleAuthorize.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/google/sheets/range/GoogleSheetsRange.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/google/sheets/range/Range.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/google/sheets/service/GoogleSheetsService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/google/sheets/service/Service.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/google/sheets/utils/GoogleSheetsServiceUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/model/CalculatedDifferenceDate.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/model/DifferenceDate.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/parsers/ParametersParser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/updatedERP_515_tseny_ (2).xlsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Выгрузка_себестоимость.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/14_04_2023_VIKS_009-013_Svodnaya_s_kodami_ERP_dlya_zalivki_tsen.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/14_04_2023_VIKS_009-013_Svodnaya_s_kodami_ERP_dlya_zalivki_tsen.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/google/sheets/authorize/GoogleShitsAuthorize.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/google/sheets/authorize/GoogleShitsAuthorize.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/loaders/XSLXLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/loaders/XSLXLoader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/main/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/main/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/model/Model.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Model.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/parsers/DateParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/parsers/DateParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/client_secret_183844433414-r9lrs2uq9bthil1c54rfbl8683lt7u5o.apps.googleusercontent.com.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/credentials.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +41,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Enum" />
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -60,16 +80,18 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Artemix\IdeaProjects\Converter" />
+      <recent name="C:\Users\Artemix\IdeaProjects\Converter\src\main\resources" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Artemix\IdeaProjects\Converter" />
+      <recent name="C:\Users\Artemix\IdeaProjects\Converter\src\main\resources" />
     </key>
   </component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="main.Main" />
       <module name="Digitalization" />
-      <option name="PROGRAM_PARAMETERS" value="&quot;updated_14_04_2023_VIKS_009-013_Svodnaya_s_kodami_ERP_dlya_zalivki_tsen.xlsx&quot; &quot;Nomenklatura_garantiynogo_fonda_2023_god_kod_ERP_tseny.xlsx&quot;" />
+      <option name="PROGRAM_PARAMETERS" value="&quot;Spravochnik_KD_new.xlsx&quot; &quot;DKI_515_Geom_parametry.xlsx&quot; &quot;14_04_2023_VIKS_009-013_Svodnaya_s_kodami_ERP_dlya_zalivki_tsen.xlsx&quot;" />
       <option name="VM_PARAMETERS" value="-Xmx4096m" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -112,7 +134,35 @@
       <workItem from="1683182457735" duration="18646000" />
       <workItem from="1683275946314" duration="330000" />
       <workItem from="1683276346981" duration="3319000" />
-      <workItem from="1683630542343" duration="1446000" />
+      <workItem from="1683630542343" duration="1849000" />
+      <workItem from="1683660450786" duration="59000" />
+      <workItem from="1683691914583" duration="22658000" />
+      <workItem from="1683795402127" duration="3154000" />
+      <workItem from="1683805696194" duration="778000" />
+      <workItem from="1683818206931" duration="1543000" />
+      <workItem from="1683877888323" duration="12903000" />
+      <workItem from="1683919867414" duration="12158000" />
+      <workItem from="1684073098214" duration="9798000" />
+      <workItem from="1684132512343" duration="6328000" />
+      <workItem from="1684148975066" duration="889000" />
+      <workItem from="1684162038571" duration="2736000" />
+      <workItem from="1684224820172" duration="16227000" />
+      <workItem from="1684308137831" duration="24865000" />
+      <workItem from="1684443994290" duration="3069000" />
+      <workItem from="1684664939551" duration="1367000" />
+      <workItem from="1684698198690" duration="44602000" />
+      <workItem from="1684834651763" duration="4306000" />
+      <workItem from="1684848930856" duration="3552000" />
+      <workItem from="1684911904972" duration="898000" />
+      <workItem from="1684915269946" duration="11981000" />
+      <workItem from="1685298431726" duration="19048000" />
+      <workItem from="1685447886554" duration="2647000" />
+      <workItem from="1685454039666" duration="1419000" />
+      <workItem from="1685521264585" duration="2172000" />
+      <workItem from="1685559814365" duration="2710000" />
+      <workItem from="1685603967599" duration="15003000" />
+      <workItem from="1685691988395" duration="814000" />
+      <workItem from="1685891614216" duration="1799000" />
     </task>
     <task id="LOCAL-00001" summary="add new params">
       <created>1681849314787</created>
@@ -121,7 +171,21 @@
       <option name="project" value="LOCAL" />
       <updated>1681849314787</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="add authorize google sheets">
+      <created>1683660319268</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1683660319268</updated>
+    </task>
+    <task id="LOCAL-00003" summary="add authorize file for Google sheets">
+      <created>1683660501468</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1683660501468</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -140,9 +204,25 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add new params" />
-    <option name="LAST_COMMIT_MESSAGE" value="add new params" />
+    <MESSAGE value="add authorize google sheets" />
+    <MESSAGE value="add authorize file for Google sheets" />
+    <option name="LAST_COMMIT_MESSAGE" value="add authorize file for Google sheets" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/loaders/XSLXLoader.java</url>
+          <line>1527</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="org.apache.poi.xssf.usermodel.XSSFRow" memberName="_cells" />
+      </pinned-members>
+    </pin-to-top-manager>
     <watches-manager>
       <configuration name="Application">
         <watch expression="((XSSFRow)row)._cells" custom="org.apache.poi.xssf.usermodel.XSSFRow" />
@@ -150,6 +230,16 @@
         <watch expression="cellStyle" />
         <watch expression="orders" />
         <watch expression="rpi" />
+        <watch expression="((XSSFRow)((TreeMap.Entry)((TreeMap)((XSSFSheet)exportSheet)._rows).entrySet().toArray()[9]).getValue())._cells" custom="java.util.TreeMap,org.apache.poi.xssf.usermodel.XSSFSheet,java.util.TreeMap.Entry,org.apache.poi.xssf.usermodel.XSSFRow" />
+        <watch expression="((XSSFRow)row)._cells" custom="org.apache.poi.xssf.usermodel.XSSFRow" />
+        <watch expression="unSortedList.get(0).get(7)" />
+        <watch expression="prices.get(0)" />
+        <watch expression="workDataSet" language="JAVA" />
+        <watch expression="currentTargets" />
+        <watch expression="row" />
+        <watch expression="currentTargets" />
+        <watch expression="workDataSet" language="JAVA" />
+        <watch expression="rows.get(18)" />
       </configuration>
     </watches-manager>
   </component>
